@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   lint:
     docker:
@@ -24,7 +24,6 @@ jobs:
           command: GOMAXPROCS=2 go test -v -race -cover .
 
 workflows:
-  version: 2
   build-workflow:
     jobs:
       - lint
