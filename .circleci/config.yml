@@ -44,6 +44,7 @@ jobs:
       - run:
           name: Install Python
           command: |
+            pyenv install --list
             cd /opt/circleci/.pyenv/plugins/python-build/../.. && git pull && cd -
             pyenv install 3.6.9
             pyenv local 3.6.9
