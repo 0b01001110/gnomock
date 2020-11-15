@@ -37,12 +37,37 @@ jobs:
           name: Test gnomockd
           command: go test -race -cover -v ./internal/gnomockd -run TestGnomockd
 
-  test-sdk:
+  test-sdk-python:
     machine: true
     steps:
+      - checkout
       - run:
-          name: not-implemented
-          command: exit 1
+          name: Install Python
+          command: pyenv local 3.6.9
+      - run:
+          name: Get dependencies
+          command: |
+            cd sdktest/python
+            pip3 install -r requirements.txt
+      - run:
+          name: Generate python sdk
+          command: swagger/bin/generate-python.sh
+      - run:
+          name: Build docker image
+          command: docker build --tag gnomock .
+      - run:
+          name: Run gnomock
+          command: |
+            docker run -itd \
+              -p 23042:23042 \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              -v `pwd`:`pwd` \
+              gnomock
+      - run:
+          name: Test
+          command: |
+            cd sdktest/python
+            python3 -m pytest -n 3 -v -k TestSDK
 
   test-localstack:
     machine: true
@@ -192,7 +217,7 @@ workflows:
     jobs:
       - lint
       - test-core
-      - test-sdk
+      - test-sdk-python
       - test-localstack
       - test-elastic
       - test-memcached
